@@ -1,0 +1,149 @@
+<!-- DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pay w/ Crypto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body>
+  <div class="container">
+    <section class="card">
+      <h2>Check Wallet Balance</h2>
+      <div class="form-group">
+        <label for="wallet-address">Wallet Address:</label>
+        <input type="text" id="wallet-address" placeholder="Wallet address" />
+      </div>
+      <button class="btn-primary">Check Balance</button>
+    </section>
+
+    <section class="card">
+      <h2>Send Ethereum Transaction</h2>
+      <div class="form-group">
+        <label for="destination-address">Destination Address:</label>
+        <input type="text" id="destination-address" placeholder="Destination address" />
+      </div>
+      <div class="form-group">
+        <label for="amount">Amount (ETH):</label>
+        <input type="text" id="amount" placeholder="Amount (e.g., 0.1)" />
+      </div>
+      <button class="btn-primary">Send Transaction</button>
+    </section>
+  </div>
+</body>
+</html>
+
+<script>
+  const amountInput = document.getElementById("amount");
+
+  amountInput.addEventListener("input", (event) => {
+    let value = event.target.value;
+
+    // Remove all non-numeric characters except period
+    value = value.replace(/[^0-9.]/g, "");
+
+    // Ensure only one decimal point
+    const parts = value.split(".");
+    if (parts.length > 2) {
+      value = parts[0] + "." + parts[1];
+    }
+
+    // Limit to 18 decimals (typical for ETH values)
+    if (parts[1]?.length > 18) {
+      value = parts[0] + "." + parts[1].slice(0, 18);
+    }
+
+    // Update the input value
+    event.target.value = value;
+  });
+  
+  // Trigger to check wallet balance
+  const checkBalanceButton = document.querySelector("button.btn-primary:nth-of-type(1)");
+  checkBalanceButton.addEventListener("click", async () => {
+    const address = document.getElementById("wallet-address").value;
+
+    if (!address) {
+      alert("Please enter a wallet address.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/get-balance", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ address }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert(`Balance: ${result.balance} ETH`);
+      } else {
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error fetching wallet balance:", error);
+      alert("Failed to fetch wallet balance. Please try again.");
+    }
+  });
+
+  // Trigger to send transaction
+  const sendTransactionButton = document.querySelector("button.btn-primary:nth-of-type(2)");
+  sendTransactionButton.addEventListener("click", async () => {
+    const destinationAddress = document.getElementById("destination-address").value;
+    const amount = document.getElementById("amount").value;
+
+    if (!destinationAddress || !amount) {
+      alert("Please fill in both destination address and amount.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/send-transaction", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ destinationAddress, amount }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert(`Transaction successful: ${result.transactionHash}`);
+      } else {
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error sending transaction:", error);
+      alert("Failed to send transaction. Please try again.");
+    }
+  });
+</script -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ethereum Payment with Reais</title>
+  <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Ethereum Payment in Reais</h1>
+    <p id="status"></p>
+    <p>Amount in BRL: <input type="number" id="brlAmount" placeholder="Enter amount in BRL"></p>
+    <p>Equivalent in ETH: <span id="ethAmount">0</span></p>
+    <button id="payButton">Pay with Ethereum</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+
+  <script src="./assets/app.js"></script>
+</body>
+</html>
